@@ -86,6 +86,47 @@ if __name__ == '__main__':
     py_to_pd_OscSender = SimpleUDPClient(ip, sending_to_pd_port)
     # ---------------------------------------------------------- #
 
+
+    ## INTERPOLATION
+
+    def bilinear_interpolation(new_location, z_0, z_1, z_2, z_3,
+                           corner_0=(0, 0), corner_1=(1, 0), corner_2=(1, 1), corner_3=(0, 1)):
+        """
+        Bilinear interpolation of a point in a 2D space.
+
+        Args:
+            new_location:   A tuple (x, y) of the new location to interpolate.
+            z_0:            The embedding corresponding to the bottomn left corner.
+            z_1:            The embedding corresponding to the bottom right corner.
+            z_2:            The embedding corresponding to the top right corner.
+            z_3:            The embedding corresponding to the top left corner.
+            corner_0:       The coordinates of the bottom left corner on the x-y plane.
+            corner_1:       The coordinates of the bottom right corner on the x-y plane.
+            corner_2:       The coordinates of the top right corner on the x-y plane.
+            corner_3:       The coordinates of the top left corner on the x-y plane.
+        Returns:
+        """
+
+        x, y = new_location
+        x0, y0 = corner_0
+        x1, y1 = corner_1
+        x2, y2 = corner_2
+        x3, y3 = corner_3
+
+        # Calculate the fractional distances in the x and y directions between the new location
+        # and the bottom left corner.
+        dx = (x - x0) / (x1 - x0)
+        dy = (y - y0) / (y3 - y0)
+
+        # Interpolate the values along the x-axis first.
+        z_bottom = z_0 * (1 - dx) + z_1 * dx
+        z_top = z_3 * (1 - dx) + z_2 * dx
+
+        # Interpolate the values along the y-axis next.
+        z_interp = z_bottom * (1 - dy) + z_top * dy
+
+        return z_interp
+
     def process_message_from_queue(address, args):
         if "VelutimeIndex" in address:
             input_tensor[:, int(args[2]), 0] = 1 if args[0] > 0 else 0  # set hit
@@ -100,18 +141,40 @@ if __name__ == '__main__':
         elif "time_between_generations" in address:
             global min_wait_time_btn_gens
             min_wait_time_btn_gens = args[0]
+        elif "lower_left":
+            z1=generate_random()
+        elif "lower_right":
+            z2=generate_random()
+        elif "upper_left":
+            z3=generate_random()
+        elif "upper_right":
+            z4=generate_random()
         else:
             print ("Unknown Message Received, address {}, value {}".format(address, args))
     # python-osc method for establishing the UDP communication with pd
     server = OscMessageReceiver(ip, receiving_from_pd_port, message_queue=message_queue)
     server.start()
 
-    # ---------------------------------------------------------- #
+    
 
+    def generate_random():
 
-    # ------------------ NOTE GENERATION  ------------------ #
-    # drum_voice_pitch_map = {"kick": 36, 'snare': 38, 'tom-1': 47, 'tom-2': 42, 'chat': 64, 'ohat': 63}
-    # drum_voices = list(drum_voice_pitch_map.keys())
+        z=np.random.random(128)
+        z_means_dict={}
+        z_stds_dict={}
+        
+        return z
+        
+    
+    z1=generate_random()
+        
+    z2=generate_random()
+        
+    z3=generate_random()
+        
+    z4=generate_random()
+
+    ## AQUÍ TENEMOS QUE MANDARLO A PURE DATA. 
     
     number_of_generations = 0
     count = 0
@@ -127,25 +190,35 @@ if __name__ == '__main__':
             # EITHER GENERATE USING GROOVE OR GENERATE A RANDOM PATTERN
 
             # case 1. generate using groove
+            """
             h_new, v_new, o_new = generate_from_groove(
                 model_=groove_transformer_vae,
                 in_groove=input_tensor,
                 voice_thresholds_=voice_thresholds,
                 voice_max_count_allowed_=voice_max_count_allowed)
+            """
+            location=None
+            z_interp=bilinear_interpolation(location, z1, z2, z3, z4,
+                           corner_0=(0, 0), corner_1=(1, 0), corner_2=(1, 1), corner_3=(0, 1))
 
-            # case 2. generate randomly
-            # h_new, v_new, o_new = generate_random_pattern(
-            #     model_=groove_transformer_vae,
-            #     voice_thresholds_=voice_thresholds,
-            #     voice_max_count_allowed_=voice_max_count_allowed,
-            #     means_dict=z_means_dict,
-            #     stds_dict=z_stds_dict,
-            #     style="funk"
-            # )
-
+            z_means_dict_interp={}
+            z_stds_dict_interp={}
+            
+            h_new, v_new, o_new = generate_random_pattern(
+                model_=groove_transformer_vae,
+                voice_thresholds_=voice_thresholds,
+                voice_max_count_allowed_=voice_max_count_allowed,
+                means_dict=z_means_dict,
+                stds_dict=z_stds_dict,
+                style="funk"
+            )
+ 
+ 
             # ----------------------------------------------------------------------------------------------- #
             # ----------------------------------------------------------------------------------------------- #
             # send to pd
+
+
             osc_messages_to_send = get_new_drum_osc_msgs((h_new, v_new, o_new))
             number_of_generations += 1
 
