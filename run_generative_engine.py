@@ -141,13 +141,13 @@ if __name__ == '__main__':
         elif "time_between_generations" in address:
             global min_wait_time_btn_gens
             min_wait_time_btn_gens = args[0]
-        elif "lower_left":
+        elif "lower_left" in address:
             z1=generate_random()
-        elif "lower_right":
+        elif "lower_right" in address:
             z2=generate_random()
-        elif "upper_left":
+        elif "upper_left" in address:
             z3=generate_random()
-        elif "upper_right":
+        elif "upper_right" in address:
             z4=generate_random()
         else:
             print ("Unknown Message Received, address {}, value {}".format(address, args))
@@ -190,12 +190,13 @@ if __name__ == '__main__':
             # EITHER GENERATE USING GROOVE OR GENERATE A RANDOM PATTERN
 
             # case 1. generate using groove
-            """
+            
             h_new, v_new, o_new = generate_from_groove(
                 model_=groove_transformer_vae,
                 in_groove=input_tensor,
                 voice_thresholds_=voice_thresholds,
                 voice_max_count_allowed_=voice_max_count_allowed)
+            
             """
             location=None
             z_interp=bilinear_interpolation(location, z1, z2, z3, z4,
@@ -212,8 +213,8 @@ if __name__ == '__main__':
                 stds_dict=z_stds_dict,
                 style="funk"
             )
- 
- 
+            """
+
             # ----------------------------------------------------------------------------------------------- #
             # ----------------------------------------------------------------------------------------------- #
             # send to pd
