@@ -87,6 +87,29 @@ if __name__ == '__main__':
     # ---------------------------------------------------------- #
 
 
+    ## SEND TO PD
+
+    class Z:
+        def __init__(self,dl,dr,ul,ur):
+            self.lower_left=dl
+            self.lower_right=dr
+            self.upper_left=ul
+            self.upper_right=ur
+
+
+    def send_to_pd(h_new,v_new,o_new):
+        osc_messages_to_send = get_new_drum_osc_msgs((h_new, v_new, o_new))
+        print(osc_messages_to_send)
+    
+
+        # First clear generations on pd by sending a message
+        py_to_pd_OscSender.send_message("/reset_table", 1)
+
+        # Then send over generated notes one at a time
+        for (address, h_v_ix_tuple) in osc_messages_to_send:
+            py_to_pd_OscSender.send_message(address, h_v_ix_tuple)
+
+
     ## INTERPOLATION
 
     def bilinear_interpolation(new_location, z_0, z_1, z_2, z_3,
@@ -127,7 +150,7 @@ if __name__ == '__main__':
 
         return z_interp
 
-    def process_message_from_queue(address, args):
+    def process_message_from_queue(address, args,embeddings):
         if "VelutimeIndex" in address:
             input_tensor[:, int(args[2]), 0] = 1 if args[0] > 0 else 0  # set hit
             input_tensor[:, int(args[2]), 1] = args[0] / 127  # set velocity
@@ -142,35 +165,64 @@ if __name__ == '__main__':
             global min_wait_time_btn_gens
             min_wait_time_btn_gens = args[0]
         elif "lower_left" in address:
-            z1=np.random.random(128)
+            z1,_=get_random_sample_from_style(style_="funk", model_=groove_transformer_vae,
+                                 voice_thresholds_=voice_thresholds,
+                                 voice_max_count_allowed_=voice_max_count_allowed,
+                                 z_means_dict=z_means_dict, z_stds_dict=z_stds_dict,
+                                 scale_means_factor=1.0, scale_stds_factor=1.0)
+            embeddings.lower_left=z1
+            h_lower_left,v_lower_left,v_lower_left= decode_z_into_drums(model_=groove_transformer_vae, latent_z=z1, voice_thresholds=voice_thresholds, voice_max_count_allowed=voice_max_count_allowed)
+            send_to_pd(h_lower_left,v_lower_left,v_lower_left)
         elif "lower_right" in address:
-            z2=np.random.random(128)
+            z2,_=get_random_sample_from_style(style_="hiphop", model_=groove_transformer_vae,
+                                 voice_thresholds_=voice_thresholds,
+                                 voice_max_count_allowed_=voice_max_count_allowed,
+                                 z_means_dict=z_means_dict, z_stds_dict=z_stds_dict,
+                                 scale_means_factor=1.0, scale_stds_factor=1.0)
+            embeddings.lower_right=z1
+            h_lower_right,v_lower_right,o_lower_right= decode_z_into_drums(model_=groove_transformer_vae, latent_z=z2, voice_thresholds=voice_thresholds, voice_max_count_allowed=voice_max_count_allowed)
+            send_to_pd(h_lower_right,v_lower_right,o_lower_right)
         elif "upper_left" in address:
-            z3=np.random.random(128)
+            z3,_=get_random_sample_from_style(style_="jazz", model_=groove_transformer_vae,
+                                 voice_thresholds_=voice_thresholds,
+                                 voice_max_count_allowed_=voice_max_count_allowed,
+                                 z_means_dict=z_means_dict, z_stds_dict=z_stds_dict,
+                                 scale_means_factor=1.0, scale_stds_factor=1.0)
+            embeddings.upper_left=z1
+            h_upper_left,v_upper_left,o_upper_left= decode_z_into_drums(model_=groove_transformer_vae, latent_z=z3, voice_thresholds=voice_thresholds, voice_max_count_allowed=voice_max_count_allowed)
+            send_to_pd(h_upper_left,v_upper_left,o_upper_left)
         elif "upper_right" in address:
-            z4=np.random.random(128)
+            z4,_=get_random_sample_from_style(style_="reggae", model_=groove_transformer_vae,
+                                 voice_thresholds_=voice_thresholds,
+                                 voice_max_count_allowed_=voice_max_count_allowed,
+                                 z_means_dict=z_means_dict, z_stds_dict=z_stds_dict,
+                                 scale_means_factor=1.0, scale_stds_factor=1.0)
+            embeddings.upper_right=z1
+            h_upper_right,v_upper_right,o_upper_right= decode_z_into_drums(model_=groove_transformer_vae, latent_z=z4, voice_thresholds=voice_thresholds, voice_max_count_allowed=voice_max_count_allowed)
+            send_to_pd(h_upper_right,v_upper_right,o_upper_right)
+        elif "x" in address:
+            print(address)
+        elif "y" in address:
+            print("Adiós")
         else:
             print ("Unknown Message Received, address {}, value {}".format(address, args))
+
     # python-osc method for establishing the UDP communication with pd
     server = OscMessageReceiver(ip, receiving_from_pd_port, message_queue=message_queue)
     server.start()
 
-
-    z1=np.random.random(128)
-    z2=np.random.random(128)
-    z3=np.random.random(128)
-    z4=np.random.random(128)
-
-    ## AQUÍ TENEMOS QUE MANDARLO A PURE DATA. 
+    embeddings=Z(0,0,0,0)
     
+    
+    interpolation=False
     number_of_generations = 0
     count = 0
     while (1):
         address, args = message_queue.get()
-        process_message_from_queue(address, args)
+        process_message_from_queue(address, args,embeddings)
 
         # only generate new pattern when there isnt any other osc messages backed up for processing in the message_queue
-        if (message_queue.qsize() == 0):
+        if (message_queue.qsize() == 0) and interpolation==True:
 
             # ----------------------------------------------------------------------------------------------- #
             # ----------------------------------------------------------------------------------------------- #
@@ -178,36 +230,20 @@ if __name__ == '__main__':
 
             # case 1. generate using groove
             
-            h_new, v_new, o_new = generate_from_groove(
-                model_=groove_transformer_vae,
-                in_groove=input_tensor,
-                voice_thresholds_=voice_thresholds,
-                voice_max_count_allowed_=voice_max_count_allowed)
-            """
-            
             location=None
-            z_interp=bilinear_interpolation(location, z1, z2, z3, z4,
+            z_interp=bilinear_interpolation(location, embeddings.lower_left, embeddings.lower_right, embeddings.upper_left, embeddings.upper_right,
                            corner_0=(0, 0), corner_1=(1, 0), corner_2=(1, 1), corner_3=(0, 1))
 
-            z_means_dict_interp={}
-            z_stds_dict_interp={}
             
-            h_new, v_new, o_new = generate_random_pattern(
-                model_=groove_transformer_vae,
-                voice_thresholds_=voice_thresholds,
-                voice_max_count_allowed_=voice_max_count_allowed,
-                means_dict=z_means_dict,
-                stds_dict=z_stds_dict,
-                style="funk"
-            )
-            """
-
+            
+            h,v,o=decode_z_into_drums(model_=groove_transformer_vae, latent_z=z_interp, voice_thresholds=voice_thresholds, voice_max_count_allowed=voice_max_count_allowed)
+            
             # ----------------------------------------------------------------------------------------------- #
             # ----------------------------------------------------------------------------------------------- #
             # send to pd
 
 
-            osc_messages_to_send = get_new_drum_osc_msgs((h_new, v_new, o_new))
+            osc_messages_to_send = get_new_drum_osc_msgs((h, v, o))
             number_of_generations += 1
 
             # First clear generations on pd by sending a message

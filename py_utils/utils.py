@@ -66,6 +66,7 @@ def generate_random_pattern(model_, voice_thresholds_, voice_max_count_allowed_,
         return_concatenated=False,
         sampling_mode=0)
 
+#for random z &&&&&&
 def decode_z_into_drums(model_, latent_z, voice_thresholds, voice_max_count_allowed):
     """ returns a full drum pattern based on a provided latent encoding Z
     """
@@ -75,6 +76,7 @@ def decode_z_into_drums(model_, latent_z, voice_thresholds, voice_max_count_allo
                          return_concatenated=False,
                          sampling_mode=0)
 
+#for random z &&&&&&
 def get_random_sample_from_style(style_, model_,
                                  voice_thresholds_,
                                  voice_max_count_allowed_,
