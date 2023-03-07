@@ -142,37 +142,24 @@ if __name__ == '__main__':
             global min_wait_time_btn_gens
             min_wait_time_btn_gens = args[0]
         elif "lower_left" in address:
-            z1=generate_random()
+            z1=np.random.random(128)
         elif "lower_right" in address:
-            z2=generate_random()
+            z2=np.random.random(128)
         elif "upper_left" in address:
-            z3=generate_random()
+            z3=np.random.random(128)
         elif "upper_right" in address:
-            z4=generate_random()
+            z4=np.random.random(128)
         else:
             print ("Unknown Message Received, address {}, value {}".format(address, args))
     # python-osc method for establishing the UDP communication with pd
     server = OscMessageReceiver(ip, receiving_from_pd_port, message_queue=message_queue)
     server.start()
 
-    
 
-    def generate_random():
-
-        z=np.random.random(128)
-        z_means_dict={}
-        z_stds_dict={}
-        
-        return z
-        
-    
-    z1=generate_random()
-        
-    z2=generate_random()
-        
-    z3=generate_random()
-        
-    z4=generate_random()
+    z1=np.random.random(128)
+    z2=np.random.random(128)
+    z3=np.random.random(128)
+    z4=np.random.random(128)
 
     ## AQUÍ TENEMOS QUE MANDARLO A PURE DATA. 
     
@@ -196,8 +183,8 @@ if __name__ == '__main__':
                 in_groove=input_tensor,
                 voice_thresholds_=voice_thresholds,
                 voice_max_count_allowed_=voice_max_count_allowed)
-            
             """
+            
             location=None
             z_interp=bilinear_interpolation(location, z1, z2, z3, z4,
                            corner_0=(0, 0), corner_1=(1, 0), corner_2=(1, 1), corner_3=(0, 1))
