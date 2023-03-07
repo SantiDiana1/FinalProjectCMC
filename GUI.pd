@@ -1,6 +1,6 @@
-#N struct 1248-rectangle float x float c;
-#N struct 1248-pixel float x0 float y0;
-#N canvas 600 149 1920 966 12;
+#N struct 1244-rectangle float x float c;
+#N struct 1244-pixel float x0 float y0;
+#N canvas 181 -20 1920 966 12;
 #X obj 5 10 source/internals;
 #X obj 980 213 xy;
 #X text 977 238 Get mouse coordinates on click and drag;
@@ -26,7 +26,12 @@
 #X text 872 607 corner_0 at (0 \, 0);
 #X text 1202 608 corner_1 at (1 \, 0);
 #X text 1202 424 corner_2 at (1 \, 1);
-#X text 876 423 corner_3 at (0 \, 1);
+#X text 863 421 corner_3 at (0 \, 1);
+#X obj 877 443 bng 35 250 50 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000;
+#X obj 876 641 bng 35 250 50 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000;
+#X text 1299 608 corner_0 at (0 \, 0);
+#X obj 1304 444 bng 35 250 50 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000;
+#X obj 1303 642 bng 35 250 50 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000;
 #X connect 4 0 5 0;
 #X connect 5 0 6 0;
 #X connect 5 1 14 0;
