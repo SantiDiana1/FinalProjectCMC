@@ -96,6 +96,11 @@ if __name__ == '__main__':
             self.upper_left=ul
             self.upper_right=ur
 
+    class location:
+        def __init__(self,x,y):
+            self.x=x
+            self.y=y
+
 
     def send_to_pd(h_new,v_new,o_new):
         osc_messages_to_send = get_new_drum_osc_msgs((h_new, v_new, o_new))
@@ -112,7 +117,7 @@ if __name__ == '__main__':
 
     ## INTERPOLATION
 
-    def bilinear_interpolation(new_location, z_0, z_1, z_2, z_3,
+    def bilinear_interpolation(x,y, z_0, z_1, z_2, z_3,
                            corner_0=(0, 0), corner_1=(1, 0), corner_2=(1, 1), corner_3=(0, 1)):
         """
         Bilinear interpolation of a point in a 2D space.
@@ -130,7 +135,7 @@ if __name__ == '__main__':
         Returns:
         """
 
-        x, y = new_location
+        
         x0, y0 = corner_0
         x1, y1 = corner_1
         x2, y2 = corner_2
@@ -201,9 +206,9 @@ if __name__ == '__main__':
             h_upper_right,v_upper_right,o_upper_right= decode_z_into_drums(model_=groove_transformer_vae, latent_z=z4, voice_thresholds=voice_thresholds, voice_max_count_allowed=voice_max_count_allowed)
             send_to_pd(h_upper_right,v_upper_right,o_upper_right)
         elif "x" in address:
-            print(address)
+            xy.x=valor
         elif "y" in address:
-            print("Adiós")
+            xy.y=valor
         else:
             print ("Unknown Message Received, address {}, value {}".format(address, args))
 
@@ -212,6 +217,7 @@ if __name__ == '__main__':
     server.start()
 
     embeddings=Z(0,0,0,0)
+    xy=location(0,0)
     
     
     interpolation=True
@@ -231,7 +237,7 @@ if __name__ == '__main__':
             # case 1. generate using groove
             
             #location=None
-            #z_interp=bilinear_interpolation(location, embeddings.lower_left, embeddings.lower_right, embeddings.upper_left, embeddings.upper_right,
+            #z_interp=bilinear_interpolation(x=xy.x,y=xy.y, embeddings.lower_left, embeddings.lower_right, embeddings.upper_left, embeddings.upper_right,
             #               corner_0=(0, 0), corner_1=(1, 0), corner_2=(1, 1), corner_3=(0, 1))
 
             
