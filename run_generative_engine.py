@@ -66,7 +66,7 @@ if __name__ == '__main__':
 
     # ------  Create an empty h, v, o tuple for previously generated events to avoid duplicate messages
     (h_old, v_old, o_old) = (torch.zeros((1, 32, 9)), torch.zeros((1, 32, 9)), torch.zeros((1, 32, 9)))
-
+    
     # set the minimum time needed between generations
     min_wait_time_btn_gens = args.wait
 
@@ -214,7 +214,7 @@ if __name__ == '__main__':
     embeddings=Z(0,0,0,0)
     
     
-    interpolation=False
+    interpolation=True
     number_of_generations = 0
     count = 0
     while (1):
@@ -230,13 +230,15 @@ if __name__ == '__main__':
 
             # case 1. generate using groove
             
-            location=None
-            z_interp=bilinear_interpolation(location, embeddings.lower_left, embeddings.lower_right, embeddings.upper_left, embeddings.upper_right,
-                           corner_0=(0, 0), corner_1=(1, 0), corner_2=(1, 1), corner_3=(0, 1))
+            #location=None
+            #z_interp=bilinear_interpolation(location, embeddings.lower_left, embeddings.lower_right, embeddings.upper_left, embeddings.upper_right,
+            #               corner_0=(0, 0), corner_1=(1, 0), corner_2=(1, 1), corner_3=(0, 1))
 
             
             
-            h,v,o=decode_z_into_drums(model_=groove_transformer_vae, latent_z=z_interp, voice_thresholds=voice_thresholds, voice_max_count_allowed=voice_max_count_allowed)
+            #h,v,o=decode_z_into_drums(model_=groove_transformer_vae, latent_z=z_interp, voice_thresholds=voice_thresholds, voice_max_count_allowed=voice_max_count_allowed)
+            
+            h,v,o=decode_z_into_drums(model_=groove_transformer_vae, latent_z=np.random.random((128)), voice_thresholds=voice_thresholds, voice_max_count_allowed=voice_max_count_allowed)
             
             # ----------------------------------------------------------------------------------------------- #
             # ----------------------------------------------------------------------------------------------- #
