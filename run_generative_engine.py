@@ -90,7 +90,7 @@ if __name__ == '__main__':
     ## SEND TO PD
 
     class Z:
-        def __init__(self,dl,dr,ul,ur):
+        def __init__(self,dl,dr,ur,ul):
             self.lower_left=dl
             self.lower_right=dr
             self.upper_left=ul
@@ -197,9 +197,46 @@ if __name__ == '__main__':
             xy.x=args[0]
         elif "y" in address:
             xy.y=args[0] 
+            print(embeddings.upper_left)
+        elif "save_embeddings" in address:
+            save_embeddings(embeddings)
+        elif "load_embeddings" in address:
+            print(args[0])
+            #embeddings=load_embeddings(args[0])
+            print(embeddings.upper_left)
         else:
             print ("Unknown Message Received, address {}, value {}".format(address, args))
 
+
+    def save_embeddings(embeddings):
+        embeddings_list=[]
+        embeddings_list.append(embeddings.lower_left)
+        embeddings_list.append(embeddings.lower_right)
+        embeddings_list.append(embeddings.upper_right)
+        embeddings_list.append(embeddings.upper_left)
+        file = open("saved_embeddings.pkl", 'wb')
+        pickle.dump(embeddings_list, file)
+        file.close()
+
+    def load_embeddings(file_name,embeddings):
+        file = open(file_name, 'rb')
+        #if file not pickle print(File not valid)
+        try:
+            embeddings_list = pickle.load(file)
+        except:
+            print("File not valid")
+        file.close()
+        #if embeddings_list not a list or not 4 elements print(File not valid)
+        try:
+            if len(embeddings_list)!=4:
+                print("File not valid")
+                return None
+        except:
+            print("File not valid")
+            return None
+        embeddings=embeddings_list[0],embeddings_list[1],embeddings_list[2],embeddings_list[3]
+        return embeddings
+        
     def set_embeddings(embeddings,style,corner):
         if corner=="lower_left":
             embeddings.lower_left,_=get_random_sample_from_style(style_=style, model_=groove_transformer_vae,
@@ -242,6 +279,13 @@ if __name__ == '__main__':
     
     xy=location(0,0)
     
+
+
+
+
+
+
+
     
     interpolation=True
     number_of_generations = 0
