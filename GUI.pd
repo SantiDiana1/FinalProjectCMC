@@ -1,6 +1,6 @@
 #N struct 1244-rectangle float x float c;
 #N struct 1244-pixel float x0 float y0;
-#N canvas 952 0 1920 966 12;
+#N canvas -57 -24 1920 966 12;
 #X obj 5 10 source/internals;
 #X obj 980 213 xy;
 #X text 977 238 Get mouse coordinates on click and drag;
@@ -39,9 +39,11 @@
 #X obj 1178 807 s trigger_y;
 #X obj 966 45 openpanel;
 #X obj 936 10 bng 19 250 50 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000;
-#X obj 1323 101 bng 19 250 50 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000;
-#X obj 1326 152 s trigger_save_embeddings;
 #X obj 972 104 s trigger_load_embeddings;
+#X obj 1647 401 cnv 19 250 250 empty empty empty 20 12 0 12 #e0e0e0 #404040 0;
+#X obj 1647 519 cnv 19 250 3 empty empty empty 20 12 0 12 #000000 #404040 0;
+#X obj 1234 46 bng 19 250 50 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000;
+#X obj 1255 99 s trigger_save_embeddings;
 #X connect 4 0 5 0;
 #X connect 5 0 6 0;
 #X connect 5 1 14 0;
@@ -59,7 +61,7 @@
 #X connect 27 0 31 0;
 #X connect 28 0 32 0;
 #X connect 29 0 33 0;
-#X connect 36 0 40 0;
+#X connect 36 0 38 0;
 #X connect 37 0 36 0;
-#X connect 38 0 39 0;
+#X connect 41 0 42 0;
 #X coords 0 -1 1 1 810 820 1 0 0;

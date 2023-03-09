@@ -154,7 +154,56 @@ if __name__ == '__main__':
         z_interp = z_bottom * (1 - dy) + z_top * dy
 
         return z_interp
+    def load_embeddings(file_name,embeddings):
+        file = open(file_name, 'rb')
+        #if file not pickle print(File not valid)
+        try:
+            embeddings_list = pickle.load(file)
+        except:
+            print("File not valid")
+        file.close()
+        #if embeddings_list not a list or not 4 elements print(File not valid)
+        try:
+            if len(embeddings_list)!=4:
+                print("File not valid")
+                return None
+        except:
+            print("File not valid")
+            return None
+        embeddings.lower_left=embeddings_list[0]
+        embeddings.lower_right=embeddings_list[1]
+        embeddings.upper_right=embeddings_list[2]
+        embeddings.upper_left=embeddings_list[3]
+        return embeddings
+        
+    def set_embeddings(embeddings,style,corner):
+        if corner=="lower_left":
+            embeddings.lower_left,_=get_random_sample_from_style(style_=style, model_=groove_transformer_vae,
+                                 voice_thresholds_=voice_thresholds,
+                                 voice_max_count_allowed_=voice_max_count_allowed,
+                                 z_means_dict=z_means_dict, z_stds_dict=z_stds_dict,
+                                 scale_means_factor=1.0, scale_stds_factor=1.0)
+        if corner=="lower_right":
+            embeddings.lower_right,_=get_random_sample_from_style(style_=style, model_=groove_transformer_vae,
+                                 voice_thresholds_=voice_thresholds,
+                                 voice_max_count_allowed_=voice_max_count_allowed,
+                                 z_means_dict=z_means_dict, z_stds_dict=z_stds_dict,
+                                 scale_means_factor=1.0, scale_stds_factor=1.0)
+        if corner=="upper_left":
+            embeddings.upper_left,_=get_random_sample_from_style(style_=style, model_=groove_transformer_vae,
+                                 voice_thresholds_=voice_thresholds,
+                                 voice_max_count_allowed_=voice_max_count_allowed,
+                                 z_means_dict=z_means_dict, z_stds_dict=z_stds_dict,
+                                 scale_means_factor=1.0, scale_stds_factor=1.0)
+        if corner=="upper_right":
+            embeddings.upper_right,_=get_random_sample_from_style(style_=style, model_=groove_transformer_vae,
+                                 voice_thresholds_=voice_thresholds,
+                                 voice_max_count_allowed_=voice_max_count_allowed,
+                                 z_means_dict=z_means_dict, z_stds_dict=z_stds_dict,
+                                 scale_means_factor=1.0, scale_stds_factor=1.0)
+        
 
+        
     def process_message_from_queue(address, args,embeddings):
         if "VelutimeIndex" in address:
             input_tensor[:, int(args[2]), 0] = 1 if args[0] > 0 else 0  # set hit
@@ -202,7 +251,7 @@ if __name__ == '__main__':
             save_embeddings(embeddings)
         elif "load_embeddings" in address:
             print(args[0])
-            #embeddings=load_embeddings(args[0])
+            embeddings=load_embeddings(args[0],embeddings)
             print(embeddings.upper_left)
         else:
             print ("Unknown Message Received, address {}, value {}".format(address, args))
@@ -218,53 +267,7 @@ if __name__ == '__main__':
         pickle.dump(embeddings_list, file)
         file.close()
 
-    def load_embeddings(file_name,embeddings):
-        file = open(file_name, 'rb')
-        #if file not pickle print(File not valid)
-        try:
-            embeddings_list = pickle.load(file)
-        except:
-            print("File not valid")
-        file.close()
-        #if embeddings_list not a list or not 4 elements print(File not valid)
-        try:
-            if len(embeddings_list)!=4:
-                print("File not valid")
-                return None
-        except:
-            print("File not valid")
-            return None
-        embeddings=embeddings_list[0],embeddings_list[1],embeddings_list[2],embeddings_list[3]
-        return embeddings
-        
-    def set_embeddings(embeddings,style,corner):
-        if corner=="lower_left":
-            embeddings.lower_left,_=get_random_sample_from_style(style_=style, model_=groove_transformer_vae,
-                                 voice_thresholds_=voice_thresholds,
-                                 voice_max_count_allowed_=voice_max_count_allowed,
-                                 z_means_dict=z_means_dict, z_stds_dict=z_stds_dict,
-                                 scale_means_factor=1.0, scale_stds_factor=1.0)
-        if corner=="lower_right":
-            embeddings.lower_right,_=get_random_sample_from_style(style_=style, model_=groove_transformer_vae,
-                                 voice_thresholds_=voice_thresholds,
-                                 voice_max_count_allowed_=voice_max_count_allowed,
-                                 z_means_dict=z_means_dict, z_stds_dict=z_stds_dict,
-                                 scale_means_factor=1.0, scale_stds_factor=1.0)
-        if corner=="upper_left":
-            embeddings.upper_left,_=get_random_sample_from_style(style_=style, model_=groove_transformer_vae,
-                                 voice_thresholds_=voice_thresholds,
-                                 voice_max_count_allowed_=voice_max_count_allowed,
-                                 z_means_dict=z_means_dict, z_stds_dict=z_stds_dict,
-                                 scale_means_factor=1.0, scale_stds_factor=1.0)
-        if corner=="upper_right":
-            embeddings.upper_right,_=get_random_sample_from_style(style_=style, model_=groove_transformer_vae,
-                                 voice_thresholds_=voice_thresholds,
-                                 voice_max_count_allowed_=voice_max_count_allowed,
-                                 z_means_dict=z_means_dict, z_stds_dict=z_stds_dict,
-                                 scale_means_factor=1.0, scale_stds_factor=1.0)
-        
 
-        
 
     # python-osc method for establishing the UDP communication with pd
     server = OscMessageReceiver(ip, receiving_from_pd_port, message_queue=message_queue)
