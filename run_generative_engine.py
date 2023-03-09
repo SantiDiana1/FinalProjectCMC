@@ -175,7 +175,6 @@ if __name__ == '__main__':
                                  voice_max_count_allowed_=voice_max_count_allowed,
                                  z_means_dict=z_means_dict, z_stds_dict=z_stds_dict,
                                  scale_means_factor=1.0, scale_stds_factor=1.0)
-            print(embeddings.lower_left)
         elif "lower_right" in address:
             embeddings.lower_right,_=get_random_sample_from_style(style_="hiphop", model_=groove_transformer_vae,
                                  voice_thresholds_=voice_thresholds,
@@ -188,13 +187,12 @@ if __name__ == '__main__':
                                  voice_max_count_allowed_=voice_max_count_allowed,
                                  z_means_dict=z_means_dict, z_stds_dict=z_stds_dict,
                                  scale_means_factor=1.0, scale_stds_factor=1.0)
-            print(embeddings.upper_left)
         elif "upper_right" in address:
             embeddings.upper_right,_=get_random_sample_from_style(style_="reggae", model_=groove_transformer_vae,
                                  voice_thresholds_=voice_thresholds,
                                  voice_max_count_allowed_=voice_max_count_allowed,
                                  z_means_dict=z_means_dict, z_stds_dict=z_stds_dict,
-                                 scale_means_factor=1.0, scale_stds_factor=1.0)
+                                 scale_means_factor=1.0, scale_stds_factor=1.0)     
         elif "x" in address:
             xy.x=args[0]
         elif "y" in address:
@@ -221,7 +219,6 @@ if __name__ == '__main__':
                                  voice_max_count_allowed_=voice_max_count_allowed,
                                  z_means_dict=z_means_dict, z_stds_dict=z_stds_dict,
                                  scale_means_factor=1.0, scale_stds_factor=1.0)
-            print(embeddings.upper_left)
         if corner=="upper_right":
             embeddings.upper_right,_=get_random_sample_from_style(style_=style, model_=groove_transformer_vae,
                                  voice_thresholds_=voice_thresholds,
@@ -240,8 +237,9 @@ if __name__ == '__main__':
     embeddings=Z(0,0,0,0)
     set_embeddings(embeddings,"funk","lower_left")
     set_embeddings(embeddings,"hiphop","lower_right")
-    set_embeddings(embeddings,"jazz","upper_left")
     set_embeddings(embeddings,"reggae","upper_right")
+    set_embeddings(embeddings,"jazz","upper_left")
+    
     xy=location(0,0)
     
     
@@ -262,7 +260,7 @@ if __name__ == '__main__':
             # case 1. generate using groove
             
             
-            z_interp=bilinear_interpolation(x=xy.x,y=xy.y, z_0=embeddings.lower_left, z_1=embeddings.lower_right, z_2=embeddings.upper_left, z_3=embeddings.upper_right,
+            z_interp=bilinear_interpolation(x=xy.x,y=xy.y, z_0=embeddings.lower_left, z_1=embeddings.lower_right, z_2=embeddings.upper_right, z_3=embeddings.upper_left,
                            corner_0=(0, 0), corner_1=(1, 0), corner_2=(1, 1), corner_3=(0, 1))
 
             
